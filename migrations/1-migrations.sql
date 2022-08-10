@@ -1,7 +1,7 @@
 CREATE TABLE public."user"
 (
     uid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    email VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL,
     nickname VARCHAR(100) NOT NULL UNIQUE
 );
