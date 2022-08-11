@@ -3,8 +3,7 @@ import supertest from 'supertest';
 import { configCommon }  from "../src/config.js";
 import { client } from "../src/api/models/database.js";
 
-const testingHost = 'http://localhost';
-const apiUrl = `${testingHost}:${configCommon.expressPort}`;
+const apiUrl = `${configCommon.host}:${configCommon.port}`;
 const testNickname = 'testnickname';
 
 const removeTestingUser = async () => {
@@ -49,11 +48,11 @@ test('POST /signin', async () => {
     const request = supertest(apiUrl);
     let json = { "nickname": `${testNickname}${randString()}` }
     let response = await request.post('/signin').send(json);
-    expect(response.text).toBe('Incorrect schema');
+    expect(response.body.error).toBe('Incorrect schema');
     json.email = "example@exe.com";
     json.password = "example";
     response = await request.post('/signin').send(json);
-    expect(response.text).toBe('Password need at least one digit, lowercase letter and uppercase letter, min 8 letters');
+    expect(response.body.error).toBe('Password need at least one digit, lowercase letter and uppercase letter, min 8 letters');
     json.password = "AAAAAbbbbbbb111111111";
     response = await request.post('/signin').send(validUserData());
     expect(response.body.token).not.toBeUndefined();
@@ -63,7 +62,7 @@ test('POST /login', async () => {
     const request = supertest(apiUrl);
     let json = { "email": `${testNickname}${randString()}`, "password": "SOMEWRONGPASSWORD" }
     let response = await request.post('/login').send(json);
-    expect(response.text).toBe('Incorrect auth data');
+    expect(response.body.error).toBe('Incorrect auth data');
     const user = await genValidUser();
     response = await request.post('/login').send(user.loginData);
     expect(response.body.token).not.toBeUndefined();

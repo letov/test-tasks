@@ -1,5 +1,6 @@
 export const configCommon = {
-    "expressPort": 3001,
+    "host": 'http://localhost',
+    "port": 3001,
     "secret": "big-secret",
     "expires": 1800,
 };
