@@ -16,5 +16,5 @@ VALUES
 INSERT INTO public."userTag"
 (user_uid, tag_id)
 VALUES
-    ((SELECT uid FROM public."user" WHERE nickname = 'nickname1'), (SELECT id FROM public."tag" WHERE name = 'tagName1')),
-    ((SELECT uid FROM public."user" WHERE nickname = 'nickname2'), (SELECT id FROM public."tag" WHERE name = 'tagName2'));
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname1'), (SELECT id FROM public."tag" WHERE name = 'tagName11')),
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname2'), (SELECT id FROM public."tag" WHERE name = 'tagName12'));

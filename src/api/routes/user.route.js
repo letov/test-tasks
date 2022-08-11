@@ -188,4 +188,38 @@ userRouter.delete('/user', async function(req, res, next) {
         .catch(next);
 });
 
+/**
+ * @openapi
+ * /user/tag:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: integer
+ *     responses:
+ *       200:
+ *        description: user tag data
+ *       400:
+ *        content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorSchema'
+ */
+userRouter.post('/user/tag', async function(req, res, next) {
+    const uid = req.authInfo.uid;
+    userController.addUserTags(uid, req.body)
+        .then(tags => {
+            res.json(tags);
+        })
+        .catch(next);
+});
+
 export { userRouter };

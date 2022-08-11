@@ -1,5 +1,6 @@
 import { client } from './database.js';
 import EmailValidator from 'email-validator';
+import { tagModel } from "./tag.model.js";
 
 class User {
     #uid;
@@ -162,6 +163,32 @@ const userModel = {
             });
         }
         return await this.getUser(user.uid);
+    },
+
+    async addUserTags(uid, tagIds) {
+        await client.query('BEGIN');
+        let tags = [];
+        try {
+            for (const tagId of tagIds) {
+                const tag = await tagModel.getTag(tagId);
+                tags.push({
+                    id: tag.id,
+                    name: tag.name,
+                    sortOrder: tag.sortOrder,
+                });
+                await client.query(
+                    'INSERT INTO public."userTag" (user_uid, tag_id) VALUES ($1, $2)',
+                    [uid, tagId]
+                ).catch((err) => {
+                    throw new Error(err.message);
+                });
+            }
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw new Error(err.message);
+        }
+        return { tags };
     }
 }
 

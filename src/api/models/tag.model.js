@@ -119,7 +119,7 @@ const tagModel = {
 
     async createTag(tag) {
         const result = await client.query(
-            'INSERT INTO public."tag" (creator, name, sortOrder) VALUES ($1, $2, $3) RETURNING id',
+            'INSERT INTO public."tag" (creator, name, sort_order) VALUES ($1, $2, $3) RETURNING id',
             [tag.creator, tag.name, tag.sortOrder ?? 0]
         ).catch((err) => {
             throw new Error(err.message);

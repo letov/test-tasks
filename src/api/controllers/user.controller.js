@@ -37,6 +37,14 @@ const loginPostSchema = {
     "required": ["email", "password"]
 };
 
+const userTagSchema = {
+    "id": "/UserTagSchema",
+    "type": "array",
+    "items": {
+        "type": "number"
+    }
+};
+
 const validateUserSchema = (json, schema) => {
     if (!validator.validate(json, schema).valid) {
         throw new Error('Incorrect schema');
@@ -99,6 +107,11 @@ const userController = {
 
     async deleteUser(uid) {
         await userModel.deleteUser(uid);
+    },
+
+    async addUserTags(uid, tagIds) {
+        validateUserSchema(tagIds, userTagSchema);
+        return await userModel.addUserTags(uid, tagIds);
     }
 }
 
