@@ -60,19 +60,19 @@ const tagController = {
     async getTags(json) {
         validateTagSchema(json, tagFilterSchema);
         const tags = await tagModel.getTags(json);
+        const data = tags.reduce((acc, item) => {
+            acc.push({
+                "creator": {
+                    "nickname": item.nickname,
+                    "uid": item.creator,
+                },
+                "name": item.name,
+                "sortOrder": item.sortOrder
+            });
+            return acc;
+        }, []);
         return {
-            "data": tags.reduce((acc, item) => {
-                console.log(item)
-                acc.push({
-                    "creator": {
-                        "nickname": item.nickname,
-                        "uid": item.creator,
-                    },
-                    "name": item.name,
-                    "sortOrder": item.sortOrder
-                });
-                return acc;
-            }, []),
+            "data": data,
             "meta": {
                 "offset": json.offset,
                 "length": json.length,

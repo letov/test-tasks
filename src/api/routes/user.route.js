@@ -107,32 +107,6 @@ userRouter.use(authMiddleware);
 
 /**
  * @openapi
- * /refresh:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     tags:
- *       - user
- *     responses:
- *      200:
- *        content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/TokenSchema'
- *      400:
- *        content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ErrorSchema'
- */
-userRouter.get('/refresh',async function(req, res, next) {
-    const uid = req.authInfo.uid;
-    const token = userController.genToken(uid);
-    res.json({ token, "expires": configCommon.expires } );
-})
-
-/**
- * @openapi
  * /user:
  *   post:
  *     security:

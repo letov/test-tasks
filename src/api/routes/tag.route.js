@@ -1,6 +1,5 @@
 import express from "express";
 import { tagController } from "../controllers/tag.controller.js";
-import { configCommon }  from "../../config.js";
 import { authMiddleware } from "../controllers/auth.controller.js";
 
 const tagRouter = express.Router();
