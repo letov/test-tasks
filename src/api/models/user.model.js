@@ -8,22 +8,20 @@ class User {
     #passwordHash;
     #nickname;
 
-    constructor(params, skipValidate = false) {
+    constructor(params, skipValidatePassword = false) {
         this.#uid = params.uid;
         this.#email = params.email;
         this.#password = params.password;
         this.#passwordHash = params.passwordHash;
         this.#nickname = params.nickname;
-        if (!skipValidate) {
-            this.validate();
-        }
+        this.validate(skipValidatePassword);
     }
 
-    validate() {
+    validate(skipValidatePassword = false) {
         if (!this.validateEmail()) {
             throw new Error('Wrong email');
         }
-        if (!this.validatePassword()) {
+        if (!skipValidatePassword && !this.validatePassword()) {
             throw new Error('Password need at least one digit, lowercase letter and uppercase letter, min 8 letters');
         }
         if (!this.validateNickname()) {
@@ -90,7 +88,7 @@ class User {
 const userModel = {
     async getUsers(uids) {
         const results = await client.query(
-            'SELECT * FROM public."user" WHERE uid = ANY ($1)',
+            'SELECT * FROM public."user" WHERE uid = ANY($1::uuid[])',
             [uids],
         );
         return results.rows.reduce((acc, item) => {
@@ -133,8 +131,8 @@ const userModel = {
         const result = await client.query(
             'INSERT INTO public."user" (email, password, nickname) VALUES ($1, md5($2), $3) RETURNING uid',
             [user.email, user.password, user.nickname]
-        ).catch(() => {
-            throw new Error('Duplicate user');
+        ).catch((err) => {
+            throw new Error(err.message);
         });
         return await this.getUser(result.rows[0].uid);
     },
@@ -148,19 +146,19 @@ const userModel = {
     },
 
     async updateUser(user) {
-        if (null !== user.password) {
+        if (user.hasOwnProperty('password')) {
             await client.query(
                 'UPDATE public."user" SET email = $1, password = md5($2), nickname = $3 WHERE uid = $4',
                 [user.email, user.password, user.nickname, user.uid],
-            ).catch(() => {
-                throw new Error('Duplicate user');
+            ).catch((err) => {
+                throw new Error(err.message);
             });
         } else {
             await client.query(
-                'UPDATE  public."user" SET email = $1, nickname = $3 WHERE uid = $4',
+                'UPDATE  public."user" SET email = $1, nickname = $2 WHERE uid = $3',
                 [user.email, user.nickname, user.uid],
-            ).catch(() => {
-                throw new Error('Duplicate user');
+            ).catch((err) => {
+                throw new Error(err.message);
             });
         }
         return await this.getUser(user.uid);

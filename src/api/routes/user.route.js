@@ -1,6 +1,7 @@
 import express from "express";
 import { userController } from "../controllers/user.controller.js";
 import { configCommon }  from "../../config.js";
+import { authMiddleware } from "../controllers/auth.controller.js";
 
 const userRouter = express.Router();
 
@@ -97,7 +98,118 @@ userRouter.post('/signin', async function(req, res, next) {
 userRouter.post('/login', async function(req, res, next) {
     userController.login(req.body)
         .then(token => {
-            res.json({token, "expires": configCommon.expires});
+            res.json({ token, "expires": configCommon.expires } );
+        })
+        .catch(next);
+});
+
+userRouter.use(authMiddleware);
+
+/**
+ * @openapi
+ * /refresh:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - user
+ *     responses:
+ *      200:
+ *        content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TokenSchema'
+ *      400:
+ *        content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorSchema'
+ */
+userRouter.get('/refresh',async function(req, res, next) {
+    const uid = req.authInfo.uid;
+    const token = userController.genToken(uid);
+    res.json({ token, "expires": configCommon.expires } );
+})
+
+/**
+ * @openapi
+ * /user:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - user
+ *     responses:
+ *       200:
+ *        description: user data
+ *       400:
+ *        content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorSchema'
+ */
+userRouter.post('/user', async function(req, res, next) {
+    const uid = req.authInfo.uid;
+    userController.getUser(uid)
+        .then(user => {
+            res.json(user);
+        })
+        .catch(next);
+});
+
+/**
+ * @openapi
+ * /user:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - user
+ *     requestBody:
+ *        content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UserSchema'
+ *     responses:
+ *       200:
+ *        description: user data
+ *       400:
+ *        content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorSchema'
+ */
+userRouter.put('/user', async function(req, res, next) {
+    const uid = req.authInfo.uid;
+    userController.updateUser(uid, req.body)
+        .then(user => {
+            res.json(user);
+        })
+        .catch(next);
+});
+
+/**
+ * @openapi
+ * /user:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - user
+ *     responses:
+ *       200:
+ *        description: user data
+ *       400:
+ *        content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorSchema'
+ */
+userRouter.delete('/user', async function(req, res, next) {
+    const uid = req.authInfo.uid;
+    userController.deleteUser(uid)
+        .then(user => {
+            res.json({ "message": "you killed ))" });
         })
         .catch(next);
 });

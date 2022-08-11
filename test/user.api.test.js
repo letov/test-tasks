@@ -2,15 +2,35 @@ import { expect, test, beforeAll, afterAll } from 'vitest';
 import supertest from 'supertest';
 import { configCommon }  from "../src/config.js";
 import { client } from "../src/api/models/database.js";
+import { User } from "../src/api/models/user.model.js";
 
 const apiUrl = `${configCommon.host}:${configCommon.port}`;
 const testNickname = 'testnickname';
+
+const seedUserData = {
+    "nickname": 'nickname1',
+    "password": 'pass1',
+};
 
 const removeTestingUser = async () => {
     await client.query(
         'DELETE FROM public."user" WHERE nickname LIKE $1',
         [`${testNickname}%`],
     );
+}
+
+const getSeedUser = async () => {
+    const results = await client.query(
+        'SELECT * FROM public."user" WHERE nickname = $1',
+        [seedUserData.nickname],
+    );
+    const item = results.rows[0];
+    return new User({
+        uid: item.uid,
+        email: item.email,
+        passwordHash: item.password,
+        nickname: item.nickname,
+    }, true);
 }
 
 const randString = () => {
@@ -70,7 +90,13 @@ test('POST /login', async () => {
 
 test('GET /user', async () => {
     const request = supertest(apiUrl);
-    const user = await genValidUser();
-    
+    const user = await getSeedUser();
+    let response = await request.post('/user').send();
+    expect(response.body.error).toBe("jwt must be provided");
+    let json = { "email": user.email, "password": seedUserData.password }
+    response = await request.post('/login').send(json);
+    expect(response.body.token).not.toBeUndefined();
+    response = await request.post('/user').set('Authorization', 'bearer ' + response.body.token);
+    expect(response.body.tags).not.toBeUndefined();
 });
 

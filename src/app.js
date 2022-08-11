@@ -8,11 +8,23 @@ import swaggerUi from 'swagger-ui-express';
 
 const options = {
     definition: {
-        openapi: '3.0.0',
+        openapi: '3.0.1',
         info: {
             title: 'Express API for test-tasks',
             version: '1.0.0',
         },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                }
+            }
+        },
+        security: [{
+            bearerAuth: []
+        }]
     },
     apis: ['./src/api/routes/*.route.js'],
     servers: [
@@ -28,13 +40,11 @@ const app = express();
 
 app.use(cors({origin: '*'}));
 app.use(bodyParser.json());
-app.use('/', basicRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
+app.use('/', basicRouter);
 
 const errorHandler = (error, request, response, next) => {
-    const code = error.code || 400;
-    response.status(code).json( { "error": error.message } );
+    response.status(400).json( { "error": error.message } );
 }
 app.use(errorHandler);
 

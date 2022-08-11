@@ -1,6 +1,7 @@
 import { expect, test, beforeAll, afterAll } from 'vitest';
 import { User, userModel } from '../src/api/models/user.model.js';
 import { client } from '../src/api/models/database.js';
+import {tagModel} from "../src/api/models/tag.model.js";
 
 const testNickname = 'testnickname';
 
@@ -38,7 +39,7 @@ test('Test user model', async () => {
     }
     user.password = 'bbAAA111';
     user = await userModel.updateUser(user);
-    expect(originalHash).not.toBe(user.passwordHash);
+    expect(originalHash).toBe(user.passwordHash);
     const _user = await userModel.getUser(user.uid);
     expect(_user.nickname).toBe(user.nickname);
     userModel.deleteUser(user.uid);

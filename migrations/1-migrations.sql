@@ -10,7 +10,13 @@ CREATE TABLE public."tag"
 (
     id SERIAL PRIMARY KEY,
     creator uuid REFERENCES public."user"(uid) ON DELETE CASCADE,
-    name VARCHAR(40) NOT NULL,
-    sortOrder int DEFAULT 0
+    name VARCHAR(40) NOT NULL UNIQUE,
+    sort_order int DEFAULT 0
 );
 
+CREATE TABLE public."userTag"
+(
+    id SERIAL PRIMARY KEY,
+    user_uid uuid REFERENCES public."user"(uid) ON DELETE CASCADE,
+    tag_id int REFERENCES public."tag"(id) ON DELETE CASCADE
+);

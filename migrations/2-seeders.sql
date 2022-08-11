@@ -5,7 +5,16 @@ VALUES
     ('some2@mail.com', md5('pass2'), 'nickname2');
 
 INSERT INTO public."tag"
-(creator, name, sortOrder)
+(creator, name, sort_order)
 VALUES
-    ((SELECT uid FROM public."user" WHERE nickname = 'nickname1'), 'tagName1', 1),
-    ((SELECT uid FROM public."user" WHERE nickname = 'nickname2'), 'tagName2', 2);
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname1'), 'tagName11', 1),
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname1'), 'tagName12', 1),
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname1'), 'tagName13', 1),
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname2'), 'tagName21', 2),
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname2'), 'tagName22', 2);
+
+INSERT INTO public."userTag"
+(user_uid, tag_id)
+VALUES
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname1'), (SELECT id FROM public."tag" WHERE name = 'tagName1')),
+    ((SELECT uid FROM public."user" WHERE nickname = 'nickname2'), (SELECT id FROM public."tag" WHERE name = 'tagName2'));
