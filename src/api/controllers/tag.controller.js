@@ -1,6 +1,6 @@
 import { Validator } from 'jsonschema';
-import { Tag, tagModel } from "../models/tag.model.js";
-import { userModel } from "../models/user.model.js";
+import { Tag, tagService } from "../models/tag.model.js";
+import { userService } from "../models/user.model.js";
 
 const validator = new Validator();
 
@@ -36,7 +36,7 @@ const tagController = {
         validateTagSchema(json, tagPostSchema);
         json.creator = uid;
         let tag = new Tag(json);
-        tag = await tagModel.createTag(tag);
+        tag = await tagService.createTag(tag);
         return {
             "id": tag.id,
             "name": tag.name,
@@ -45,8 +45,8 @@ const tagController = {
     },
 
     async getTag(id) {
-        const tag = await tagModel.getTag(id);
-        const user = await userModel.getUser(tag.creator);
+        const tag = await tagService.getTag(id);
+        const user = await userService.getUser(tag.creator);
         return {
             "creator": {
                 "nickname": user.nickname,
@@ -59,7 +59,7 @@ const tagController = {
 
     async getTags(json) {
         validateTagSchema(json, tagFilterSchema);
-        const tags = await tagModel.getTags(json);
+        const tags = await tagService.getTags(json);
         const data = tags.reduce((acc, item) => {
             acc.push({
                 "creator": {

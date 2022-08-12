@@ -1,6 +1,6 @@
 import { client } from './database.js';
 import EmailValidator from 'email-validator';
-import { tagModel } from "./tag.model.js";
+import { tagService } from "./tag.model.js";
 
 class User {
     #uid;
@@ -86,7 +86,7 @@ class User {
     }
 }
 
-const userModel = {
+const userService = {
     async getUsers(uids) {
         const results = await client.query(
             'SELECT * FROM public."user" WHERE uid = ANY($1::uuid[])',
@@ -170,7 +170,7 @@ const userModel = {
         let tags = [];
         try {
             for (const tagId of tagIds) {
-                const tag = await tagModel.getTag(tagId);
+                const tag = await tagService.getTag(tagId);
                 tags.push({
                     id: tag.id,
                     name: tag.name,
@@ -192,4 +192,4 @@ const userModel = {
     }
 }
 
-export { User, userModel }
+export { User, userService }

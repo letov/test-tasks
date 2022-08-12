@@ -1,6 +1,6 @@
 import { Validator } from 'jsonschema';
-import { User, userModel } from "../models/user.model.js";
-import { tagModel } from "../models/tag.model.js";
+import { User, userService } from "../models/user.model.js";
+import { tagService } from "../models/tag.model.js";
 import jwt from "jsonwebtoken";
 import { configCommon }  from "../../config.js";
 
@@ -55,13 +55,13 @@ const userController = {
     async singin(json) {
         validateUserSchema(json, userPostSchema);
         let user = new User(json);
-        user = await userModel.createUser(user);
+        user = await userService.createUser(user);
         return this.genToken(user.uid);
     },
 
     async login(json) {
         validateUserSchema(json, loginPostSchema);
-        const user = await userModel.getUserByEmailAndPassword(json.email, json.password);
+        const user = await userService.getUserByEmailAndPassword(json.email, json.password);
         return this.genToken(user.uid);
     },
 
@@ -72,8 +72,8 @@ const userController = {
     },
 
     async getUser(uid) {
-        const user = await userModel.getUser(uid);
-        let tags = await tagModel.getTagsByCreator(uid);
+        const user = await userService.getUser(uid);
+        let tags = await tagService.getTagsByCreator(uid);
         tags = tags.reduce((acc, item) => {
             acc.push({
                 "id": item.id,
@@ -91,14 +91,14 @@ const userController = {
 
     async updateUser(uid, json) {
         validateUserSchema(json, userPutSchema);
-        let user = await userModel.getUser(uid);
+        let user = await userService.getUser(uid);
         user = new User({
             uid: user.uid,
             email: json.email || user.email,
             password: json.password,
             nickname: json.nickname || user.nickname,
         }, !json.hasOwnProperty('password'));
-        user = await userModel.updateUser(user);
+        user = await userService.updateUser(user);
         return {
             "email": user.email,
             "nickname": user.nickname
@@ -106,12 +106,12 @@ const userController = {
     },
 
     async deleteUser(uid) {
-        await userModel.deleteUser(uid);
+        await userService.deleteUser(uid);
     },
 
     async addUserTags(uid, tagIds) {
         validateUserSchema(tagIds, userTagSchema);
-        return await userModel.addUserTags(uid, tagIds);
+        return await userService.addUserTags(uid, tagIds);
     }
 }
 

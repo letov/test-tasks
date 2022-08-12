@@ -57,7 +57,7 @@ class Tag {
     }
 }
 
-const tagModel = {
+const tagService = {
     async getTagsByCreator(uid) {
         const results = await client.query(
             'SELECT * FROM public."tag" WHERE creator = $1',
@@ -131,4 +131,4 @@ const tagModel = {
 
 }
 
-export { Tag, tagModel }
+export { Tag, tagService }

@@ -1,7 +1,7 @@
 import { expect, test, beforeAll, afterAll } from 'vitest';
-import { User, userModel } from '../src/api/models/user.model.js';
+import { User, userService } from '../src/api/models/user.model.js';
 import { client } from '../src/api/models/database.js';
-import {tagModel} from "../src/api/models/tag.model.js";
+import {tagService} from "../src/api/models/tag.model.js";
 
 const testNickname = 'testnickname';
 
@@ -27,10 +27,10 @@ test('Test user model', async () => {
         password: 'AAAaaa111',
         nickname: testNickname,
     });
-    user = await userModel.createUser(user);
+    user = await userService.createUser(user);
     const originalHash = user.passwordHash;
     expect(originalHash).not.toBeNull();
-    const users = await userModel.getUsers([user.uid]);
+    const users = await userService.getUsers([user.uid]);
     expect(users.length).greaterThan(0);
     try {
         user.password = 'wrong-password';
@@ -38,11 +38,11 @@ test('Test user model', async () => {
         expect(error).not.toBeNull();
     }
     user.password = 'bbAAA111';
-    user = await userModel.updateUser(user);
+    user = await userService.updateUser(user);
     expect(originalHash).toBe(user.passwordHash);
-    const _user = await userModel.getUser(user.uid);
+    const _user = await userService.getUser(user.uid);
     expect(_user.nickname).toBe(user.nickname);
-    userModel.deleteUser(user.uid);
+    userService.deleteUser(user.uid);
 });
 
 
